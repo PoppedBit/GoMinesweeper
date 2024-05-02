@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 )
 
@@ -16,6 +17,63 @@ type Square struct {
 type Minefield struct {
 	grid      [][]Square
 	minesLeft int
+}
+
+// size of minefield, width and height
+const (
+	width  = 10
+	height = 10
+)
+
+// run CLI game
+func runCLIGame() {
+
+	// Initialize minefield
+	m := Minefield{}
+	m.init(width, height, 10)
+
+	// Clear screen
+	print("\033[H\033[2J")
+
+	// If mines left or all non-mines revealed and no mine revealed, continue game
+	for (m.minesLeft > 0 && !m.allNonMinesRevealed()) && !m.mineRevealed() {
+		println("Mines left:", m.minesLeft)
+		m.print(false)
+
+		var col, row int
+		var action string
+
+		println("Enter action (r/f x y):")
+		_, _ = fmt.Scanf("%s %c %d", &action, &col, &row)
+
+		// if col is lowercase, convert to uppercase
+		if col >= 'a' && col <= 'z' {
+			col -= 'a' - 'A'
+		}
+
+		// Convert x to 0-indexed integer
+		col -= 'A'
+
+		switch action {
+		case "r":
+			m.reveal(col, row)
+		case "f":
+			m.flag(col, row)
+		}
+
+		// Clear screen
+		print("\033[H\033[2J")
+	}
+
+	println("Mines left:", m.minesLeft)
+	m.print(true)
+
+	if m.mineRevealed() {
+		println("You lose!")
+	} else {
+		println("You win!")
+	}
+
 }
 
 // Initialize minefield based on width, height, and number of mines
@@ -108,7 +166,9 @@ func (m *Minefield) reveal(x, y int) {
 	}
 
 	m.grid[y][x].revealed = true
-	m.minesLeft--
+	if m.grid[y][x].hasMine {
+		m.minesLeft--
+	}
 
 	if m.grid[y][x].adjacentMines == 0 {
 		for i := -1; i <= 1; i++ {
@@ -119,17 +179,20 @@ func (m *Minefield) reveal(x, y int) {
 	}
 }
 
-// Reveal all mines
-func (m *Minefield) revealAll() {
+// Check if mine has been revealed
+func (m *Minefield) mineRevealed() bool {
 	for y := range m.grid {
 		for x := range m.grid[y] {
-			m.grid[y][x].revealed = true
+			if m.grid[y][x].hasMine && m.grid[y][x].revealed {
+				return true
+			}
 		}
 	}
+	return false
 }
 
-// Check if all non-mine squares have been revealed
-func (m *Minefield) allRevealed() bool {
+// All non-mines revealed
+func (m *Minefield) allNonMinesRevealed() bool {
 	for y := range m.grid {
 		for x := range m.grid[y] {
 			if !m.grid[y][x].hasMine && !m.grid[y][x].revealed {

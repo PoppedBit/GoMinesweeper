@@ -1,19 +1,8 @@
 package main
 
-// size of minefield, width and height
-const (
-	width  = 10
-	height = 10
-)
-
 func main() {
-	println("Minefield")
 
-	// Initialize minefield
-	m := Minefield{}
-	m.init(width, height, 10)
-
-	m.print(false)
+	runCLIGame()
 
 	// Create a new Fyne application
 	// app := app.New()
