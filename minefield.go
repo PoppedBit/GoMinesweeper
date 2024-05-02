@@ -6,10 +6,10 @@ import (
 
 // Grid Square
 type Square struct {
-	hasMine         bool
-	adjacentMines   int
-	contentsVisible bool
-	isFlagged       bool
+	hasMine       bool
+	adjacentMines int
+	revealed      bool
+	isFlagged     bool
 }
 
 // Minefield
@@ -48,11 +48,25 @@ func (m *Minefield) init(width, height, numMines int) {
 	}
 }
 
-// Print Minefield to CLI
+// Print Minefield to CLI, with column letters and row numbers
 func (m *Minefield) print(viewAll bool) {
+
+	// Print column letters
+	print(" ")
+	for i := 0; i < len(m.grid[0]); i++ {
+		print(" ")
+		print(string('A' + i))
+	}
+	println()
+
 	for y := range m.grid {
+		// Print row numbers
+		print(y)
+
 		for x := range m.grid[y] {
-			if m.grid[y][x].contentsVisible || viewAll {
+			print(" ")
+
+			if m.grid[y][x].revealed || viewAll {
 				if m.grid[y][x].hasMine {
 					print("X")
 				} else {
@@ -68,24 +82,60 @@ func (m *Minefield) print(viewAll bool) {
 	}
 }
 
-// Convert Minefield to string
-func (m *Minefield) toString(viewAll bool) string {
-	var result string
-	for y := range m.grid {
-		for x := range m.grid[y] {
-			if m.grid[y][x].contentsVisible || viewAll {
-				if m.grid[y][x].hasMine {
-					result += "X"
-				} else {
-					result += string(m.grid[y][x].adjacentMines + '0')
-				}
-			} else if m.grid[y][x].isFlagged {
-				result += "F"
-			} else {
-				result += "."
+// Flag square at x, y
+func (m *Minefield) flag(x, y int) {
+	if x < 0 || x >= len(m.grid[0]) || y < 0 || y >= len(m.grid) {
+		return
+	}
+
+	m.grid[y][x].isFlagged = !m.grid[y][x].isFlagged
+
+	if m.grid[y][x].isFlagged {
+		m.minesLeft--
+	} else {
+		m.minesLeft++
+	}
+}
+
+// Reveal square at x, y
+func (m *Minefield) reveal(x, y int) {
+	if x < 0 || x >= len(m.grid[0]) || y < 0 || y >= len(m.grid) {
+		return
+	}
+
+	if m.grid[y][x].revealed {
+		return
+	}
+
+	m.grid[y][x].revealed = true
+	m.minesLeft--
+
+	if m.grid[y][x].adjacentMines == 0 {
+		for i := -1; i <= 1; i++ {
+			for j := -1; j <= 1; j++ {
+				m.reveal(x+i, y+j)
 			}
 		}
-		result += "\n"
 	}
-	return result
+}
+
+// Reveal all mines
+func (m *Minefield) revealAll() {
+	for y := range m.grid {
+		for x := range m.grid[y] {
+			m.grid[y][x].revealed = true
+		}
+	}
+}
+
+// Check if all non-mine squares have been revealed
+func (m *Minefield) allRevealed() bool {
+	for y := range m.grid {
+		for x := range m.grid[y] {
+			if !m.grid[y][x].hasMine && !m.grid[y][x].revealed {
+				return false
+			}
+		}
+	}
+	return true
 }
