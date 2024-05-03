@@ -1,27 +1,27 @@
 package main
 
+import "fmt"
+
 func main() {
 
-	runCLIGame()
+	var mode int
+	for mode != 1 {
+		println("Welcome to Minesweeper")
+		println("[1] CLI ")
+		println("[2] GUI ")
+		print("Choose game mode: ")
+		_, _ = fmt.Scanf("%d", &mode)
+		fmt.Scanf("%*s") // Discard the rest of the line
 
-	// Create a new Fyne application
-	// app := app.New()
+		if mode != 1 && mode != 2 {
+			println("Invalid action, try again")
+		}
+	}
 
-	// // Create a widget to display the minefield
-	// minefieldWidget := widget.NewLabel("Minefield")
-
-	// // Create a container to hold the minefield widget
-	// content := container.NewVBox(minefieldWidget)
-
-	// // Set the minefield widget's text to the minefield's contents
-	// minefieldWidget.SetText(m.toString(false))
-
-	// // Create a new window with the minefield container as its content
-	// window := app.NewWindow("Minefield")
-	// window.Resize(fyne.NewSize(600, 400))
-
-	// window.SetContent(content)
-
-	// // Show the window and run the application
-	// window.ShowAndRun()
+	switch mode {
+	case 1:
+		runCLIGame()
+	case 2:
+		runGUIGame()
+	}
 }

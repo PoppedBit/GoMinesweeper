@@ -70,56 +70,6 @@ func (m *Minefield) init(width, height, numMines int) {
 	}
 }
 
-// Print Minefield to CLI, with column letters and row numbers
-func (m *Minefield) print(viewAll bool) {
-
-	// white := color.New(color.BgWhite).SprintFunc() // Fg* was the text color
-	// black := color.New(color.BgHiMagenta).SprintFunc()
-
-	// Print column letters
-	print(" ")
-	for i := 0; i < len(m.grid[0]); i++ {
-		print(" ")
-		print(string('A' + i))
-	}
-	println()
-
-	for y := range m.grid {
-
-		// Print row numbers
-		print(y)
-
-		for x := range m.grid[y] {
-			print(" ")
-
-			if m.grid[y][x].revealed || viewAll {
-				if m.grid[y][x].hasMine {
-					print("X")
-				} else {
-					print(m.grid[y][x].adjacentMines)
-				}
-			} else if m.grid[y][x].isFlagged {
-				print("F")
-			} else {
-				if m.grid[y][x].color == "white" {
-					// print(white(" "))
-					print(".")
-				} else {
-					// print(black(" "))
-					print(".")
-				}
-			}
-		}
-
-		print(" ")
-		if y == 0 {
-			print("Mines left: ", m.minesLeft)
-		}
-
-		println()
-	}
-}
-
 // Flag square at x, y
 func (m *Minefield) flag(x, y int) {
 	if x < 0 || x >= len(m.grid[0]) || y < 0 || y >= len(m.grid) {

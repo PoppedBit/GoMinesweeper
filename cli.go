@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/fatih/color"
 )
 
 // size of minefield, width and height
@@ -13,9 +15,29 @@ const (
 // run CLI game
 func runCLIGame() {
 
+	var width, height, numMines int
+	for width < 1 {
+		print("Enter width: ")
+		_, _ = fmt.Scanf("%d", &width)
+		fmt.Scanf("%*s") // Discard the rest of the line
+		if width < 1 {
+			println("Invalid width, try again")
+		}
+	}
+	for height < 1 {
+		print("Enter height: ")
+		_, _ = fmt.Scanf("%d", &height)
+		fmt.Scanf("%*s") // Discard the rest of the line
+		if height < 1 {
+			println("Invalid height, try again")
+		}
+	}
+
+	numMines = width * height / 10
+
 	// Initialize minefield
 	m := Minefield{}
-	m.init(defaultWidth, defaultHeight, 10)
+	m.init(width, height, numMines)
 
 	// Clear screen
 	print("\033[H\033[2J")
@@ -28,6 +50,7 @@ func runCLIGame() {
 		for action != "r" && action != "f" {
 			print("Enter action [r/f]: ")
 			_, _ = fmt.Scanf("%s", &action)
+			fmt.Scanf("%*s") // Discard the rest of the line
 
 			if action != "r" && action != "f" {
 				println("Invalid action, try again")
@@ -39,6 +62,7 @@ func runCLIGame() {
 		for col < 0 || col >= m.width || row < 0 || row >= m.height {
 			print("Enter coordinates [x y]: ")
 			_, _ = fmt.Scanf("%c %d", &col, &row)
+			fmt.Scanf("%*s") // Discard the rest of the line
 
 			if col >= 'a' && col <= 'z' {
 				col -= 'a' - 'A'
@@ -75,6 +99,7 @@ func runCLIGame() {
 	for playAgain != "y" && playAgain != "n" {
 		print("Play again? [y/n]: ")
 		_, _ = fmt.Scanf("%s", &playAgain)
+		fmt.Scanf("%*s") // Discard the rest of the line
 
 		// Make playAgain lowercase
 		if playAgain == "Y" || playAgain == "N" {
@@ -88,5 +113,54 @@ func runCLIGame() {
 
 	if playAgain == "y" {
 		runCLIGame()
+	}
+}
+
+// Print Minefield to CLI, with column letters and row numbers
+func (m *Minefield) print(viewAll bool) {
+
+	green := color.New(color.FgGreen).SprintFunc()
+
+	// Print column letters
+	print(" ")
+	for i := 0; i < len(m.grid[0]); i++ {
+		print(" ")
+		print(string('A' + i))
+	}
+	println()
+
+	for y := range m.grid {
+
+		// Print row numbers
+		print(y)
+
+		for x := range m.grid[y] {
+			print(" ")
+
+			if m.grid[y][x].revealed || viewAll {
+				if m.grid[y][x].hasMine {
+					print("X")
+				} else {
+					print(m.grid[y][x].adjacentMines)
+				}
+			} else if m.grid[y][x].isFlagged {
+				print(green("F"))
+			} else {
+				if m.grid[y][x].color == "white" {
+					// print(white(" "))
+					print(".")
+				} else {
+					// print(black(" "))
+					print(".")
+				}
+			}
+		}
+
+		print(" ")
+		if y == 0 {
+			print("Mines left: ", m.minesLeft)
+		}
+
+		println()
 	}
 }
