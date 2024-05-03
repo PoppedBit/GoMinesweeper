@@ -46,14 +46,13 @@ func runCLIGame() {
 	print("\033[H\033[2J")
 
 	// If mines left or all non-mines revealed and no mine revealed, continue game
-	for (!m.allNonMinesRevealed()) && !m.mineRevealed() {
+	for !m.isGameover {
 		m.print(false)
 
 		var action string
 		for action != "r" && action != "f" {
 			print("Enter action [r/f]: ")
 			_, _ = fmt.Scanf("%s", &action)
-			fmt.Scanf("%*s") // Discard the rest of the line
 
 			if action != "r" && action != "f" {
 				println("Invalid action, try again")
@@ -65,7 +64,6 @@ func runCLIGame() {
 		for col < 0 || col >= m.width || row < 0 || row >= m.height {
 			print("Enter coordinates [x y]: ")
 			_, _ = fmt.Scanf("%c %d", &col, &row)
-			fmt.Scanf("%*s") // Discard the rest of the line
 
 			if col >= 'a' && col <= 'z' {
 				col -= 'a' - 'A'
@@ -92,7 +90,7 @@ func runCLIGame() {
 	println("Mines left:", m.minesLeft)
 	m.print(true)
 
-	if m.mineRevealed() {
+	if !m.isWin {
 		println("You lose!")
 	} else {
 		println("You win!")

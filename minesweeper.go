@@ -20,11 +20,13 @@ type Guess struct {
 
 // Minefield
 type Minefield struct {
-	grid      [][]Square
-	height    int
-	width     int
-	minesLeft int
-	history   []Guess
+	grid       [][]Square
+	height     int
+	width      int
+	minesLeft  int
+	history    []Guess
+	isGameover bool
+	isWin      bool
 }
 
 // Initialize minefield based on width, height, and number of mines
@@ -33,6 +35,8 @@ func (m *Minefield) init(width, height, numMines int) {
 	m.width = width
 	m.height = height
 	m.minesLeft = numMines
+	m.isGameover = false
+	m.isWin = false
 
 	for i := range m.grid {
 		m.grid[i] = make([]Square, width)
@@ -100,7 +104,7 @@ func (m *Minefield) reveal(x, y int) {
 
 	m.grid[y][x].isRevealed = true
 	if m.grid[y][x].hasMine {
-		m.minesLeft--
+		m.isGameover = true
 	}
 
 	if m.grid[y][x].adjacentMines == 0 {
@@ -113,18 +117,6 @@ func (m *Minefield) reveal(x, y int) {
 
 	guess := Guess{"r", x, y}
 	m.history = append(m.history, guess)
-}
-
-// Check if mine has been revealed
-func (m *Minefield) mineRevealed() bool {
-	for y := range m.grid {
-		for x := range m.grid[y] {
-			if m.grid[y][x].hasMine && m.grid[y][x].isRevealed {
-				return true
-			}
-		}
-	}
-	return false
 }
 
 // Reveal all squares
@@ -145,5 +137,7 @@ func (m *Minefield) allNonMinesRevealed() bool {
 			}
 		}
 	}
+	m.isGameover = true
+	m.isWin = true
 	return true
 }
