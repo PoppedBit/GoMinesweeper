@@ -11,12 +11,19 @@ type Square struct {
 	adjacentMines int
 	revealed      bool
 	isFlagged     bool
+	color         string
+}
+
+type Guess struct {
+	action string
+	x, y   int
 }
 
 // Minefield
 type Minefield struct {
 	grid      [][]Square
 	minesLeft int
+	history   []Guess
 }
 
 // size of minefield, width and height
@@ -36,23 +43,38 @@ func runCLIGame() {
 	print("\033[H\033[2J")
 
 	// If mines left or all non-mines revealed and no mine revealed, continue game
-	for (m.minesLeft > 0 && !m.allNonMinesRevealed()) && !m.mineRevealed() {
+	for (!m.allNonMinesRevealed()) && !m.mineRevealed() {
 		println("Mines left:", m.minesLeft)
 		m.print(false)
 
-		var col, row int
 		var action string
+		for action != "r" && action != "f" {
+			print("Enter action [r/f]: ")
+			_, _ = fmt.Scanf("%s %c ", &action)
 
-		println("Enter action (r/f x y):")
-		_, _ = fmt.Scanf("%s %c %d", &action, &col, &row)
-
-		// if col is lowercase, convert to uppercase
-		if col >= 'a' && col <= 'z' {
-			col -= 'a' - 'A'
+			if action != "r" && action != "f" {
+				println("Invalid action, try again")
+			}
 		}
 
-		// Convert x to 0-indexed integer
-		col -= 'A'
+		col := -1
+		row := -1
+		for col < 0 || col >= width || row < 0 || row >= height {
+			print("Enter coordinates [x y]: ")
+			_, _ = fmt.Scanf("%c %d", &col, &row)
+
+			print("col: ", col, " row: ", row, "\n")
+
+			if col >= 'a' && col <= 'z' {
+				col -= 'a' - 'A'
+			}
+
+			col -= 'A'
+
+			if col < 0 || col >= width || row < 0 || row >= height {
+				println("Invalid coordinates, try again")
+			}
+		}
 
 		switch action {
 		case "r":
@@ -104,10 +126,24 @@ func (m *Minefield) init(width, height, numMines int) {
 
 		}
 	}
+
+	// Checkerboard pattern
+	for i := range m.grid {
+		for j := range m.grid[i] {
+			if (i+j)%2 == 0 {
+				m.grid[i][j].color = "black"
+			} else {
+				m.grid[i][j].color = "white"
+			}
+		}
+	}
 }
 
 // Print Minefield to CLI, with column letters and row numbers
 func (m *Minefield) print(viewAll bool) {
+
+	// white := color.New(color.BgWhite).SprintFunc() // Fg* was the text color
+	// black := color.New(color.BgHiMagenta).SprintFunc()
 
 	// Print column letters
 	print(" ")
@@ -118,6 +154,7 @@ func (m *Minefield) print(viewAll bool) {
 	println()
 
 	for y := range m.grid {
+
 		// Print row numbers
 		print(y)
 
@@ -133,7 +170,13 @@ func (m *Minefield) print(viewAll bool) {
 			} else if m.grid[y][x].isFlagged {
 				print("F")
 			} else {
-				print(".")
+				if m.grid[y][x].color == "white" {
+					// print(white(" "))
+					print(".")
+				} else {
+					// print(black(" "))
+					print(".")
+				}
 			}
 		}
 		println()
@@ -153,6 +196,9 @@ func (m *Minefield) flag(x, y int) {
 	} else {
 		m.minesLeft++
 	}
+
+	guess := Guess{"f", x, y}
+	m.history = append(m.history, guess)
 }
 
 // Reveal square at x, y
@@ -177,6 +223,9 @@ func (m *Minefield) reveal(x, y int) {
 			}
 		}
 	}
+
+	guess := Guess{"r", x, y}
+	m.history = append(m.history, guess)
 }
 
 // Check if mine has been revealed
