@@ -5,7 +5,7 @@ import "fmt"
 func main() {
 
 	var mode int
-	for mode != 1 {
+	for mode != 1 && mode != 2 {
 		println("Welcome to Minesweeper")
 		println("[1] CLI ")
 		println("[2] GUI ")
