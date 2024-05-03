@@ -15,11 +15,14 @@ const (
 // run CLI game
 func runCLIGame() {
 
+	// Clear screen
+	print("\033[H\033[2J")
+
 	var width, height, numMines int
 	for width < 1 {
 		print("Enter width: ")
 		_, _ = fmt.Scanf("%d", &width)
-		fmt.Scanf("%*s") // Discard the rest of the line
+
 		if width < 1 {
 			println("Invalid width, try again")
 		}
@@ -27,7 +30,7 @@ func runCLIGame() {
 	for height < 1 {
 		print("Enter height: ")
 		_, _ = fmt.Scanf("%d", &height)
-		fmt.Scanf("%*s") // Discard the rest of the line
+
 		if height < 1 {
 			println("Invalid height, try again")
 		}

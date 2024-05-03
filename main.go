@@ -11,7 +11,6 @@ func main() {
 		println("[2] GUI ")
 		print("Choose game mode: ")
 		_, _ = fmt.Scanf("%d", &mode)
-		fmt.Scanf("%*s") // Discard the rest of the line
 
 		if mode != 1 && mode != 2 {
 			println("Invalid action, try again")
