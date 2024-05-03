@@ -44,7 +44,6 @@ func runCLIGame() {
 
 	// If mines left or all non-mines revealed and no mine revealed, continue game
 	for (!m.allNonMinesRevealed()) && !m.mineRevealed() {
-		println("Mines left:", m.minesLeft)
 		m.print(false)
 
 		var action string
@@ -95,7 +94,6 @@ func runCLIGame() {
 	} else {
 		println("You win!")
 	}
-
 }
 
 // Initialize minefield based on width, height, and number of mines
@@ -179,6 +177,12 @@ func (m *Minefield) print(viewAll bool) {
 				}
 			}
 		}
+
+		print(" ")
+		if y == 0 {
+			print("Mines left: ", m.minesLeft)
+		}
+
 		println()
 	}
 }
