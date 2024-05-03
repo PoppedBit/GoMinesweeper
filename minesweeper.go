@@ -8,7 +8,7 @@ import (
 type Square struct {
 	hasMine       bool
 	adjacentMines int
-	revealed      bool
+	isRevealed    bool
 	isFlagged     bool
 	color         string
 }
@@ -94,11 +94,11 @@ func (m *Minefield) reveal(x, y int) {
 		return
 	}
 
-	if m.grid[y][x].revealed {
+	if m.grid[y][x].isRevealed {
 		return
 	}
 
-	m.grid[y][x].revealed = true
+	m.grid[y][x].isRevealed = true
 	if m.grid[y][x].hasMine {
 		m.minesLeft--
 	}
@@ -119,7 +119,7 @@ func (m *Minefield) reveal(x, y int) {
 func (m *Minefield) mineRevealed() bool {
 	for y := range m.grid {
 		for x := range m.grid[y] {
-			if m.grid[y][x].hasMine && m.grid[y][x].revealed {
+			if m.grid[y][x].hasMine && m.grid[y][x].isRevealed {
 				return true
 			}
 		}
@@ -127,11 +127,20 @@ func (m *Minefield) mineRevealed() bool {
 	return false
 }
 
+// Reveal all squares
+func (m *Minefield) revealAll() {
+	for y := range m.grid {
+		for x := range m.grid[y] {
+			m.grid[y][x].isRevealed = true
+		}
+	}
+}
+
 // All non-mines revealed
 func (m *Minefield) allNonMinesRevealed() bool {
 	for y := range m.grid {
 		for x := range m.grid[y] {
-			if !m.grid[y][x].hasMine && !m.grid[y][x].revealed {
+			if !m.grid[y][x].hasMine && !m.grid[y][x].isRevealed {
 				return false
 			}
 		}

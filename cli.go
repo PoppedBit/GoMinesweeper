@@ -140,7 +140,7 @@ func (m *Minefield) print(viewAll bool) {
 		for x := range m.grid[y] {
 			print(" ")
 
-			if m.grid[y][x].revealed || viewAll {
+			if m.grid[y][x].isRevealed || viewAll {
 				if m.grid[y][x].hasMine {
 					print("X")
 				} else {
