@@ -4,6 +4,13 @@ import (
 	"math/rand"
 )
 
+// size of minefield, width and height
+const (
+	defaultWidth  = 10
+	defaultHeight = 10
+	defaultMines  = 10
+)
+
 // Grid Square
 type Square struct {
 	hasMine       bool
@@ -89,7 +96,7 @@ func (m *Minefield) flag(x, y int) {
 	}
 
 	guess := Guess{"f", x, y}
-	m.history = append(m.history, guess)
+	m.history = append([]Guess{guess}, m.history...)
 }
 
 // Reveal square at x, y

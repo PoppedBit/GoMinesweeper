@@ -28,22 +28,26 @@ func runGUIGame() {
 	heightEntry.SetPlaceHolder("Height")
 	heightEntry.SetText(strconv.Itoa(defaultHeight))
 
+	// Field For User to Enter Number of Mines
+	numMinesEntry := widget.NewEntry()
+	numMinesEntry.SetPlaceHolder("Number of Mines")
+	numMinesEntry.SetText(strconv.Itoa(defaultMines))
+
 	// Button to start the game
 	startButton := widget.NewButton("Start", func() {
 		width, _ := strconv.Atoi(widthEntry.Text)
 		height, _ := strconv.Atoi(heightEntry.Text)
-		numMines := width * height / 10
+		numMines, _ := strconv.Atoi(numMinesEntry.Text)
 
 		// Initialize minefield
 		m := Minefield{}
 		m.init(width, height, numMines)
 
 		m.drawMineField(window)
-
 	})
 
 	// Set up the GUI game
-	content := container.NewVBox(widthEntry, heightEntry, startButton)
+	content := container.NewVBox(widthEntry, heightEntry, numMinesEntry, startButton)
 	window.SetContent(content)
 
 	// // Show the window and run the application
@@ -63,14 +67,14 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 			buttonText := ""
 			if cell.isRevealed {
 				if cell.hasMine {
-					buttonText = "💣"
+					buttonText = "X" //"💣"
 				} else if cell.adjacentMines > 0 {
 					buttonText = strconv.Itoa(cell.adjacentMines)
 				} else {
 					buttonText = "."
 				}
 			} else if cell.isFlagged {
-				buttonText = "🚩"
+				buttonText = "F" // "🚩"
 			}
 
 			// Create a new button widget
@@ -89,14 +93,14 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 					return
 				}
 
+				m.reveal(i, j)
+
 				if cell.hasMine {
 					// Game over
 					m.revealAll()
 					m.drawMineField(window)
 					return
 				}
-
-				m.reveal(i, j)
 
 				if m.allNonMinesRevealed() {
 					// Game won

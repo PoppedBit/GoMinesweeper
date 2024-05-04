@@ -6,12 +6,6 @@ import (
 	"github.com/fatih/color"
 )
 
-// size of minefield, width and height
-const (
-	defaultWidth  = 10
-	defaultHeight = 10
-)
-
 // run CLI game
 func runCLIGame() {
 
