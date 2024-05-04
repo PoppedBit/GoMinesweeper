@@ -56,9 +56,9 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 	grid := container.NewGridWithColumns(m.width)
 
 	// Loop through each cell in the minefield
-	for i := 0; i < m.width; i++ {
-		for j := 0; j < m.height; j++ {
-			cell := m.grid[i][j]
+	for i := 0; i < m.height; i++ {
+		for j := 0; j < m.width; j++ {
+			cell := m.grid[j][i]
 
 			buttonText := ""
 			if cell.isRevealed {
@@ -66,6 +66,8 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 					buttonText = "💣"
 				} else if cell.adjacentMines > 0 {
 					buttonText = strconv.Itoa(cell.adjacentMines)
+				} else {
+					buttonText = "."
 				}
 			} else if cell.isFlagged {
 				buttonText = "🚩"
@@ -73,7 +75,16 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 
 			// Create a new button widget
 			button := widget.NewButton(buttonText, func() {
-				// Handle left-click
+
+				if m.isGameover {
+					return
+				}
+
+				if cell.isRevealed {
+					return
+				}
+
+				// handle left click
 				if cell.isFlagged {
 					return
 				}
@@ -90,9 +101,9 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 				if m.allNonMinesRevealed() {
 					// Game won
 					m.revealAll()
-					m.drawMineField(window)
-					return
 				}
+
+				m.drawMineField(window)
 			})
 
 			// Add the button to the grid layout

@@ -100,7 +100,6 @@ func runCLIGame() {
 	for playAgain != "y" && playAgain != "n" {
 		print("Play again? [y/n]: ")
 		_, _ = fmt.Scanf("%s", &playAgain)
-		fmt.Scanf("%*s") // Discard the rest of the line
 
 		// Make playAgain lowercase
 		if playAgain == "Y" || playAgain == "N" {
