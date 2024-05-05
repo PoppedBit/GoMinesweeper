@@ -100,7 +100,7 @@ func (m *Minefield) flag(x, y int) {
 }
 
 // Reveal square at x, y
-func (m *Minefield) reveal(x, y int) {
+func (m *Minefield) reveal(x, y int, history bool) {
 	if x < 0 || x >= len(m.grid[0]) || y < 0 || y >= len(m.grid) {
 		return
 	}
@@ -117,13 +117,15 @@ func (m *Minefield) reveal(x, y int) {
 	if m.grid[y][x].adjacentMines == 0 {
 		for i := -1; i <= 1; i++ {
 			for j := -1; j <= 1; j++ {
-				m.reveal(x+i, y+j)
+				m.reveal(x+i, y+j, false)
 			}
 		}
 	}
 
-	guess := Guess{"r", x, y}
-	m.history = append(m.history, guess)
+	if history {
+		guess := Guess{"r", x, y}
+		m.history = append(m.history, guess)
+	}
 }
 
 // All non-mines revealed

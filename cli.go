@@ -72,7 +72,7 @@ func runCLIGame() {
 
 		switch action {
 		case "r":
-			m.reveal(col, row)
+			m.reveal(col, row, true)
 		case "f":
 			m.flag(col, row)
 		}

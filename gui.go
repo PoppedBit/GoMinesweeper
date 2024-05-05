@@ -63,15 +63,15 @@ func runGUIGame() {
 // Render minefield on GUI
 func (m *Minefield) drawMineField(window fyne.Window) {
 	// Create a new grid layout
-	grid := container.NewGridWithColumns(m.width + 1)
+	gameGrid := container.NewGridWithColumns(m.width + 1)
 
 	// Add Column Letter
 	for x := -1; x < m.width; x++ {
 		if x >= 0 {
 			colLetter := widget.NewLabel(fmt.Sprintf("%c", 'A'+x))
-			grid.Add(colLetter)
+			gameGrid.Add(colLetter)
 		} else {
-			grid.Add(widget.NewLabel(""))
+			gameGrid.Add(widget.NewLabel(""))
 		}
 	}
 
@@ -80,7 +80,7 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 
 		// Row Numbers
 		rowNumber := widget.NewLabel(fmt.Sprint(y))
-		grid.Add(rowNumber)
+		gameGrid.Add(rowNumber)
 
 		for x := 0; x < m.width; x++ {
 			cell := m.grid[y][x]
@@ -129,13 +129,13 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 					return
 				}
 
-				m.reveal(x, y)
+				m.reveal(x, y, true)
 
 				m.drawMineField(window)
 			})
 
 			// Add the button to the grid layout
-			grid.Add(button)
+			gameGrid.Add(button)
 		}
 	}
 
@@ -143,19 +143,38 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 	infoGrid := container.NewGridWithColumns(2)
 
 	// Mines left
-	minesLeftLabel := widget.NewLabel(fmt.Sprintf("Mines left: %d", m.minesLeft))
+	minesLeftLabel := widget.NewLabel("Mines Left:")
+	minesLeftValue := widget.NewLabel(fmt.Sprintf("%d", m.minesLeft))
 	infoGrid.Add(minesLeftLabel)
+	infoGrid.Add(minesLeftValue)
 
 	// Last action
-	if len(m.history) > 0 {
-		lastAction := m.history[0]
-		lastActionLabel := widget.NewLabel(fmt.Sprintf("Last action: %s %d %d", lastAction.action, lastAction.x, lastAction.y))
-		infoGrid.Add(lastActionLabel)
+	// if len(m.history) > 0 {
+	// 	lastAction := m.history[0]
+	// 	lastActionLabel := widget.NewLabel(fmt.Sprintf("Last action: %s %d %d", lastAction.action, lastAction.x, lastAction.y))
+	// 	infoGrid.Add(lastActionLabel)
+	// }
+
+	// History
+	i := 0
+	for i < 5 && i < len(m.history) {
+		action := m.history[i]
+		var label *widget.Label
+		if i == 0 {
+			label = widget.NewLabel("History:")
+		} else {
+			label = widget.NewLabel("")
+		}
+		infoGrid.Add(label)
+
+		value := widget.NewLabel(fmt.Sprintf("%s %d %d", action.action, action.x, action.y))
+
+		infoGrid.Add(value)
+
+		i++
 	}
 
 	// Add grids to the window
-	window.SetContent(container.NewBorder(nil, nil, nil, infoGrid, grid))
-
-	// Add the grid layout to the window
-	// window.SetContent(grid, infoGrid)
+	// infoGrid is right, gameGrid is center
+	window.SetContent(container.NewBorder(nil, nil, nil, infoGrid, gameGrid))
 }
