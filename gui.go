@@ -160,7 +160,10 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 		}
 		infoGrid.Add(label)
 
-		value := widget.NewLabel(fmt.Sprintf("%s %d %d", action.action, action.x, action.y))
+		//Convert action.x to column letter
+		colLetter := string('A' + action.x)
+
+		value := widget.NewLabel(fmt.Sprintf("%s%d", colLetter, action.y))
 
 		infoGrid.Add(value)
 
