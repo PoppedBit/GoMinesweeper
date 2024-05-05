@@ -126,15 +126,6 @@ func (m *Minefield) reveal(x, y int) {
 	m.history = append(m.history, guess)
 }
 
-// Reveal all squares
-func (m *Minefield) revealAll() {
-	for y := range m.grid {
-		for x := range m.grid[y] {
-			m.grid[y][x].isRevealed = true
-		}
-	}
-}
-
 // All non-mines revealed
 func (m *Minefield) allNonMinesRevealed() bool {
 	for y := range m.grid {
