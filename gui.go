@@ -99,7 +99,7 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 
 					// Last action
 					lastAction := m.history[0]
-					// TODO fix this
+
 					if m.isGameover && (lastAction.x == x && lastAction.y == y) {
 						buttonText = "💥"
 					}
@@ -139,5 +139,23 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 		}
 	}
 
-	window.SetContent(grid)
+	//Information Panel
+	infoGrid := container.NewGridWithColumns(2)
+
+	// Mines left
+	minesLeftLabel := widget.NewLabel(fmt.Sprintf("Mines left: %d", m.minesLeft))
+	infoGrid.Add(minesLeftLabel)
+
+	// Last action
+	if len(m.history) > 0 {
+		lastAction := m.history[0]
+		lastActionLabel := widget.NewLabel(fmt.Sprintf("Last action: %s %d %d", lastAction.action, lastAction.x, lastAction.y))
+		infoGrid.Add(lastActionLabel)
+	}
+
+	// Add grids to the window
+	window.SetContent(container.NewBorder(nil, nil, nil, infoGrid, grid))
+
+	// Add the grid layout to the window
+	// window.SetContent(grid, infoGrid)
 }
