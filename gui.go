@@ -148,13 +148,6 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 	infoGrid.Add(minesLeftLabel)
 	infoGrid.Add(minesLeftValue)
 
-	// Last action
-	// if len(m.history) > 0 {
-	// 	lastAction := m.history[0]
-	// 	lastActionLabel := widget.NewLabel(fmt.Sprintf("Last action: %s %d %d", lastAction.action, lastAction.x, lastAction.y))
-	// 	infoGrid.Add(lastActionLabel)
-	// }
-
 	// History
 	i := 0
 	for i < 5 && i < len(m.history) {

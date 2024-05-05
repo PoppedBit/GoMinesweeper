@@ -81,7 +81,6 @@ func runCLIGame() {
 		print("\033[H\033[2J")
 	}
 
-	println("Mines left:", m.minesLeft)
 	m.print(true)
 
 	if !m.isWin {

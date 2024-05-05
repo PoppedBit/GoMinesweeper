@@ -124,7 +124,12 @@ func (m *Minefield) reveal(x, y int, history bool) {
 
 	if history {
 		guess := Guess{"r", x, y}
-		m.history = append(m.history, guess)
+		m.history = append([]Guess{guess}, m.history...)
+	}
+
+	if m.allNonMinesRevealed() {
+		m.isGameover = true
+		m.isWin = true
 	}
 }
 
