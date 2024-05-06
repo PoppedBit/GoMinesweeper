@@ -30,6 +30,7 @@ type Minefield struct {
 	grid       [][]Square
 	height     int
 	width      int
+	mines      int
 	minesLeft  int
 	history    []Guess
 	isGameover bool
@@ -41,9 +42,11 @@ func (m *Minefield) init(width, height, numMines int) {
 	m.grid = make([][]Square, height)
 	m.width = width
 	m.height = height
+	m.mines = numMines
 	m.minesLeft = numMines
 	m.isGameover = false
 	m.isWin = false
+	m.history = []Guess{}
 
 	for i := range m.grid {
 		m.grid[i] = make([]Square, width)

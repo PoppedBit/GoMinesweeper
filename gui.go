@@ -170,7 +170,23 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 		i++
 	}
 
+	buttonGrid := container.NewGridWithColumns(2)
+
+	restartButton := widget.NewButton("Play Again?", func() {
+		m.init(m.width, m.height, m.mines)
+		m.drawMineField(window)
+	})
+	if !m.isGameover {
+		restartButton.Disable()
+	}
+	buttonGrid.Add(restartButton)
+
+	exitButton := widget.NewButton("Exit", func() {
+		window.Close()
+	})
+	buttonGrid.Add(exitButton)
+
 	// Add grids to the window
 	// infoGrid is right, gameGrid is center
-	window.SetContent(container.NewBorder(nil, nil, nil, infoGrid, gameGrid))
+	window.SetContent(container.NewBorder(nil, buttonGrid, nil, infoGrid, gameGrid))
 }
