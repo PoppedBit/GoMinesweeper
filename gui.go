@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -69,6 +70,7 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 	for x := -1; x < m.width; x++ {
 		if x >= 0 {
 			colLetter := widget.NewLabel(fmt.Sprintf("%c", 'A'+x))
+			colLetter.Alignment = fyne.TextAlignCenter
 			gameGrid.Add(colLetter)
 		} else {
 			gameGrid.Add(widget.NewLabel(""))
@@ -149,26 +151,25 @@ func (m *Minefield) drawMineField(window fyne.Window) {
 	infoGrid.Add(minesLeftValue)
 
 	// History
+	historyLabel := widget.NewLabel("History:")
+	infoGrid.Add(historyLabel)
+
+	historyValues := []string{}
 	i := 0
 	for i < 5 && i < len(m.history) {
 		action := m.history[i]
-		var label *widget.Label
-		if i == 0 {
-			label = widget.NewLabel("History:")
-		} else {
-			label = widget.NewLabel("")
-		}
-		infoGrid.Add(label)
 
 		//Convert action.x to column letter
 		colLetter := string('A' + action.x)
 
-		value := widget.NewLabel(fmt.Sprintf("%s%d", colLetter, action.y))
-
-		infoGrid.Add(value)
+		historyValues = append(historyValues, fmt.Sprintf("%s%d ", colLetter, action.y))
 
 		i++
 	}
+
+	historyValueText := strings.Join(historyValues, "\n")
+	historyValue := widget.NewLabel(historyValueText)
+	infoGrid.Add(historyValue)
 
 	buttonGrid := container.NewGridWithColumns(2)
 

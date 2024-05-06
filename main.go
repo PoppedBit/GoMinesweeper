@@ -1,10 +1,23 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+	"strconv"
+)
 
+// mode can be passed in a a command line argument
 func main() {
-
 	var mode int
+
+	// Check if a command line argument for mode is provided
+	if len(os.Args) > 1 {
+		arg, err := strconv.Atoi(os.Args[1])
+		if err == nil {
+			mode = arg
+		}
+	}
+
 	for mode != 1 && mode != 2 {
 		println("Welcome to Minesweeper")
 		println("[1] CLI ")
