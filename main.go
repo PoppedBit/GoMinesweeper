@@ -18,10 +18,11 @@ func main() {
 		}
 	}
 
-	for mode != 1 && mode != 2 {
+	for mode != 1 && mode != 2 && mode != 3 {
 		println("Welcome to Minesweeper")
-		println("[1] CLI ")
-		println("[2] GUI ")
+		println("[1] CLI")
+		println("[2] GUI")
+		println("[3] Twitch IRC")
 		print("Choose game mode: ")
 		_, _ = fmt.Scanf("%d", &mode)
 
@@ -35,5 +36,7 @@ func main() {
 		runCLIGame()
 	case 2:
 		runGUIGame()
+	case 3:
+		runIRCGame()
 	}
 }
