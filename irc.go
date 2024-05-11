@@ -149,8 +149,11 @@ func playIRCGame(conn net.Conn, minefield Minefield) {
 			return
 		}
 
+		// Parse the message to extract the username and the content
+		username, content := parseTwitchMessage(message)
+
 		// Process the message
-		fmt.Println("Received message:", message)
+		fmt.Printf("%s: %s", username, content)
 
 		// TODO: Implement game logic based on messages
 	}
@@ -200,4 +203,17 @@ func writeCachedData(data CachedData) {
 	writer.WriteString(data.oauth + "\n")
 	writer.WriteString(data.channel + "\n")
 	writer.Flush()
+}
+
+func parseTwitchMessage(message string) (string, string) {
+	// Parse the message to extract the username and the content
+	parts := strings.Split(message, " ")
+	if len(parts) < 4 {
+		return "", ""
+	}
+
+	username := strings.Split(parts[0], "!")[0][1:]
+	content := strings.Join(parts[3:], " ")[1:]
+
+	return username, content
 }
