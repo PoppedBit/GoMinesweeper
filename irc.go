@@ -139,43 +139,59 @@ func initTwitchConnection(username, oauth, channel string) net.Conn {
 
 func playIRCGame(conn net.Conn, minefield TwitchSweepsMines) {
 
-	// Create a reader to read messages from the server
-	reader := bufio.NewReader(conn)
+	// Start goroutine for handling Twitch IRC messages
+	go func() {
+		// Create a reader to read messages from the server
+		reader := bufio.NewReader(conn)
 
-	ticker := time.NewTicker(time.Second * time.Duration(minefield.countdown))
-
-	// Start reading messages from the server
-	for {
-		message, err := reader.ReadString('\n')
-		if err != nil {
-			fmt.Println("Failed to read message:", err)
-			return
-		}
-
-		minefield.processMessage(message)
-
-		select {
-		case <-ticker.C:
-			fmt.Println("Time is up!")
-
-			// Execute the action with the most votes
-			minefield.executeAction()
-
-			// print the minefield
-			minefield.print(false)
-
-			// Check if the game is over
-			if minefield.isGameover {
-				if minefield.isWin {
-					fmt.Println("Congratulations! You have won the game!")
-				} else {
-					fmt.Println("Game over! You have hit a mine!")
-				}
+		// Start reading messages from the server
+		for {
+			message, err := reader.ReadString('\n')
+			if err != nil {
+				fmt.Println("Failed to read message:", err)
 				return
 			}
-		default:
+
+			minefield.processMessage(message)
 		}
-	}
+	}()
+
+	// Start goroutine for handling game logic
+	go func() {
+		ticker := time.NewTicker(time.Second * time.Duration(minefield.countdown))
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				fmt.Println("Time is up!")
+
+				// Execute the action with the most votes
+				minefield.executeAction()
+
+				// print the minefield
+				minefield.print(false)
+
+				// Check if the game is over
+				if minefield.isGameover {
+					if minefield.isWin {
+						fmt.Println("Congratulations! You have won the game!")
+					} else {
+						fmt.Println("Game over! You have hit a mine!")
+
+						// print the minefield
+						minefield.print(true)
+
+						// Exit the game
+						return
+					}
+				}
+			}
+		}
+	}()
+
+	// Wait indefinitely or until an exit condition is met
+	select {}
 }
 
 func readCachedData() CachedData {
