@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -141,6 +142,8 @@ func playIRCGame(conn net.Conn, minefield TwitchSweepsMines) {
 	// Create a reader to read messages from the server
 	reader := bufio.NewReader(conn)
 
+	ticker := time.NewTicker(time.Second * time.Duration(minefield.countdown))
+
 	// Start reading messages from the server
 	for {
 		message, err := reader.ReadString('\n')
@@ -149,9 +152,29 @@ func playIRCGame(conn net.Conn, minefield TwitchSweepsMines) {
 			return
 		}
 
-		username, content := parseTwitchMessage(message)
+		minefield.processMessage(message)
 
-		minefield.processMessage(username, content)
+		select {
+		case <-ticker.C:
+			fmt.Println("Time is up!")
+
+			// Execute the action with the most votes
+			minefield.executeAction()
+
+			// print the minefield
+			minefield.print(false)
+
+			// Check if the game is over
+			if minefield.isGameover {
+				if minefield.isWin {
+					fmt.Println("Congratulations! You have won the game!")
+				} else {
+					fmt.Println("Game over! You have hit a mine!")
+				}
+				return
+			}
+		default:
+		}
 	}
 }
 
@@ -199,21 +222,4 @@ func writeCachedData(data CachedData) {
 	writer.WriteString(data.oauth + "\n")
 	writer.WriteString(data.channel + "\n")
 	writer.Flush()
-}
-
-func parseTwitchMessage(message string) (string, string) {
-
-	// Remove the trailing newline character
-	message = strings.TrimSuffix(message, "\r\n")
-
-	// Parse the message to extract the username and the content
-	parts := strings.Split(message, " ")
-	if len(parts) < 4 {
-		return "", ""
-	}
-
-	username := strings.Split(parts[0], "!")[0][1:]
-	content := strings.Join(parts[3:], " ")[1:]
-
-	return username, content
 }

@@ -1,14 +1,21 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
+)
+
+const (
+	defaultCountdown = 10
 )
 
 type TwitchSweepsMines struct {
 	Minefield
 	users       []string
 	actionVotes map[string]int
+	paused      bool
+	countdown   int
 }
 
 func (m *TwitchSweepsMines) init(width, height, numMines int) {
@@ -16,9 +23,13 @@ func (m *TwitchSweepsMines) init(width, height, numMines int) {
 
 	m.users = []string{}
 	m.actionVotes = make(map[string]int)
+	m.paused = false
+	m.countdown = defaultCountdown
 }
 
-func (minefield *TwitchSweepsMines) processMessage(username, message string) {
+func (minefield *TwitchSweepsMines) processMessage(message string) {
+
+	username, content := parseTwitchMessage(message)
 
 	// Check if the user is already in the game
 	for _, u := range minefield.users {
@@ -29,14 +40,14 @@ func (minefield *TwitchSweepsMines) processMessage(username, message string) {
 
 	// Check message is a valid command
 	// command must be in format XY where X is a letter and Y is a number
-	if len(message) != 2 {
+	if len(content) != 2 {
 		return
 	}
 
 	// Convert message to coordinates
-	message = strings.ToUpper(message)
-	col := int(message[0] - 'A')
-	row, err := strconv.Atoi(string(message[1]))
+	message = strings.ToUpper(content)
+	col := int(content[0] - 'A')
+	row, err := strconv.Atoi(string(content[1]))
 	if err != nil {
 		return
 	}
@@ -55,7 +66,9 @@ func (minefield *TwitchSweepsMines) processMessage(username, message string) {
 	minefield.users = append(minefield.users, username)
 
 	// Add the user's action to the actionVotes map
-	minefield.actionVotes[message]++
+	minefield.actionVotes[content]++
+
+	fmt.Printf("%s: %s\n", username, message)
 }
 
 func (minefield *TwitchSweepsMines) executeAction() {
@@ -68,6 +81,10 @@ func (minefield *TwitchSweepsMines) executeAction() {
 			maxVotes = v
 			action = a
 		}
+	}
+
+	if maxVotes == 0 {
+		return
 	}
 
 	// Convert action to coordinates
@@ -84,4 +101,22 @@ func (minefield *TwitchSweepsMines) executeAction() {
 func (minefield *TwitchSweepsMines) resetActionsQueue() {
 	minefield.users = []string{}
 	minefield.actionVotes = make(map[string]int)
+	println("Actions queue reset")
+}
+
+func parseTwitchMessage(message string) (string, string) {
+
+	// Remove the trailing newline character
+	message = strings.TrimSuffix(message, "\r\n")
+
+	// Parse the message to extract the username and the content
+	parts := strings.Split(message, " ")
+	if len(parts) < 4 {
+		return "", ""
+	}
+
+	username := strings.Split(parts[0], "!")[0][1:]
+	content := strings.Join(parts[3:], " ")[1:]
+
+	return username, content
 }
