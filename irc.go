@@ -93,7 +93,7 @@ func runIRCGame() {
 		conn := initTwitchConnection(username, oauth, channel)
 
 		if conn == nil {
-			// TODO error state
+			fmt.Println("Failed to connect to Twitch IRC server")
 			return
 		}
 
@@ -120,6 +120,8 @@ func runIRCGame() {
 }
 
 func initTwitchConnection(username, oauth, channel string) net.Conn {
+	fmt.Println("Initializing Twitch IRC connection: ", channel)
+
 	// Connect to the Twitch IRC server
 	conn, err := net.Dial("tcp", "irc.chat.twitch.tv:6667")
 	if err != nil {
@@ -133,6 +135,8 @@ func initTwitchConnection(username, oauth, channel string) net.Conn {
 
 	// Join the desired Twitch channel
 	fmt.Fprintf(conn, "JOIN #%s\r\n", channel)
+
+	fmt.Println("Connected to Twitch IRC server: ", channel)
 
 	return conn
 }

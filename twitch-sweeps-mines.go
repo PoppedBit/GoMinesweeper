@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	defaultCountdown = 10
+	defaultCountdown = 15
 )
 
 type TwitchSweepsMines struct {
@@ -46,8 +46,9 @@ func (minefield *TwitchSweepsMines) processMessage(message string) {
 
 	// Convert message to coordinates
 	message = strings.ToUpper(content)
-	col := int(content[0] - 'A')
-	row, err := strconv.Atoi(string(content[1]))
+
+	col := int(message[0] - 'A')
+	row, err := strconv.Atoi(string(message[1]))
 	if err != nil {
 		return
 	}
@@ -66,12 +67,21 @@ func (minefield *TwitchSweepsMines) processMessage(message string) {
 	minefield.users = append(minefield.users, username)
 
 	// Add the user's action to the actionVotes map
-	minefield.actionVotes[content]++
+	minefield.actionVotes[message]++
 
-	fmt.Printf("%s: %s\n", username, message)
+	fmt.Printf("Action recorded - %s: %s\n", username, message)
+}
+
+func (minefield *TwitchSweepsMines) printActionsQueue() {
+	fmt.Println("Actions queue:")
+	for a, v := range minefield.actionVotes {
+		fmt.Printf("%s: %d\n", a, v)
+	}
 }
 
 func (minefield *TwitchSweepsMines) executeAction() {
+
+	minefield.printActionsQueue()
 
 	// Find the most voted action
 	maxVotes := 0
@@ -84,12 +94,17 @@ func (minefield *TwitchSweepsMines) executeAction() {
 	}
 
 	if maxVotes == 0 {
+		fmt.Println("No action to execute")
 		return
 	}
+
+	fmt.Printf("Executing action: %s\n", action)
 
 	// Convert action to coordinates
 	col := int(action[0] - 'A')
 	row, _ := strconv.Atoi(string(action[1]))
+
+	fmt.Printf("Coordinates: %d, %d\n", col, row)
 
 	// Reveal the square
 	minefield.reveal(col, row, true)
