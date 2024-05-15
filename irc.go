@@ -28,9 +28,9 @@ func runIRCGame() {
 
 	app := app.New()
 
-	configWindow := app.NewWindow("Configure Twitch Sweeps Mines")
+	gameWindow := app.NewWindow("Configure Twitch Sweeps Mines")
 
-	configWindow.Resize(fyne.NewSize(600, 400))
+	gameWindow.Resize(fyne.NewSize(600, 400))
 
 	configGrid := container.NewGridWithColumns(2)
 
@@ -102,21 +102,21 @@ func runIRCGame() {
 		minefield.init(width, height, numMines)
 
 		// Start the IRC game
-		playIRCGame(conn, minefield)
+		playIRCGame(conn, minefield, gameWindow)
 	})
 
 	exitButton := widget.NewButton("Exit", func() {
-		configWindow.Close()
+		gameWindow.Close()
 	})
 
 	configGrid.Add(startButton)
 	configGrid.Add(exitButton)
 
 	// Set up the GUI game)
-	configWindow.SetContent(configGrid)
+	gameWindow.SetContent(configGrid)
 
 	// Show the window and run the application
-	configWindow.ShowAndRun()
+	gameWindow.ShowAndRun()
 }
 
 func initTwitchConnection(username, oauth, channel string) net.Conn {
@@ -141,7 +141,7 @@ func initTwitchConnection(username, oauth, channel string) net.Conn {
 	return conn
 }
 
-func playIRCGame(conn net.Conn, minefield TwitchSweepsMines) {
+func playIRCGame(conn net.Conn, minefield TwitchSweepsMines, window fyne.Window) {
 
 	// Start goroutine for handling Twitch IRC messages
 	go func() {
@@ -157,6 +157,8 @@ func playIRCGame(conn net.Conn, minefield TwitchSweepsMines) {
 			}
 
 			minefield.processMessage(message)
+
+			refreshGameWindow(window, minefield)
 		}
 	}()
 
@@ -171,23 +173,28 @@ func playIRCGame(conn net.Conn, minefield TwitchSweepsMines) {
 				fmt.Println("Time is up!")
 
 				// Execute the action with the most votes
-				minefield.executeAction()
+				actionExecuted := minefield.executeAction()
 
 				// print the minefield
 				minefield.print(false)
 
-				// Check if the game is over
-				if minefield.isGameover {
-					if minefield.isWin {
-						fmt.Println("Congratulations! You have won the game!")
-					} else {
-						fmt.Println("Game over! You have hit a mine!")
+				// Refresh the game window
+				if actionExecuted {
+					refreshGameWindow(window, minefield)
 
-						// print the minefield
-						minefield.print(true)
+					// Check if the game is over
+					if minefield.isGameover {
+						if minefield.isWin {
+							fmt.Println("Congratulations! You have won the game!")
+						} else {
+							fmt.Println("Game over! You have hit a mine!")
 
-						// Exit the game
-						return
+							// print the minefield
+							minefield.print(true)
+
+							// Exit the game
+							return
+						}
 					}
 				}
 			}
@@ -242,4 +249,10 @@ func writeCachedData(data CachedData) {
 	writer.WriteString(data.oauth + "\n")
 	writer.WriteString(data.channel + "\n")
 	writer.Flush()
+}
+
+func refreshGameWindow(window fyne.Window, minefield TwitchSweepsMines) {
+	minefield.drawMineField(window)
+
+	// TODO - just give TWITCH IRC GAME ITS OWN WINDOW
 }

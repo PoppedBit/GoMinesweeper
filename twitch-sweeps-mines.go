@@ -79,7 +79,7 @@ func (minefield *TwitchSweepsMines) printActionsQueue() {
 	}
 }
 
-func (minefield *TwitchSweepsMines) executeAction() {
+func (minefield *TwitchSweepsMines) executeAction() bool {
 
 	minefield.printActionsQueue()
 
@@ -95,7 +95,7 @@ func (minefield *TwitchSweepsMines) executeAction() {
 
 	if maxVotes == 0 {
 		fmt.Println("No action to execute")
-		return
+		return false
 	}
 
 	fmt.Printf("Executing action: %s\n", action)
@@ -111,6 +111,8 @@ func (minefield *TwitchSweepsMines) executeAction() {
 
 	// Reset the action queue
 	minefield.resetActionsQueue()
+
+	return true
 }
 
 func (minefield *TwitchSweepsMines) resetActionsQueue() {
