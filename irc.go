@@ -252,7 +252,127 @@ func writeCachedData(data CachedData) {
 }
 
 func refreshGameWindow(window fyne.Window, minefield TwitchSweepsMines) {
-	minefield.drawMineField(window)
+	// Create a new grid layout
+	gameGrid := container.NewGridWithColumns(minefield.width + 1)
 
-	// TODO - just give TWITCH IRC GAME ITS OWN WINDOW
+	mostVotedAction := minefield.getMostVotedAction()
+
+	mostVotedCol := -1
+	mostVotedRow := -1
+	if len(mostVotedAction) != 0 {
+		mostVotedCol = int(mostVotedAction[0] - 'A')
+		mostVotedRow, _ = strconv.Atoi(string(mostVotedAction[1]))
+	}
+
+	// Add Column Letter
+	for x := -1; x < minefield.width; x++ {
+		if x >= 0 {
+			colLetter := widget.NewLabel(fmt.Sprintf("%c", 'A'+x))
+			colLetter.Alignment = fyne.TextAlignCenter
+			gameGrid.Add(colLetter)
+		} else {
+			gameGrid.Add(widget.NewLabel(""))
+		}
+	}
+
+	// Loop through each cell in the minefield
+	for y := 0; y < minefield.height; y++ {
+
+		// Row Numbers
+		rowNumber := widget.NewLabel(fmt.Sprint(y))
+		gameGrid.Add(rowNumber)
+
+		for x := 0; x < minefield.width; x++ {
+			cell := minefield.grid[y][x]
+
+			buttonText := ""
+			if cell.isRevealed || minefield.isGameover {
+
+				if minefield.isGameover && cell.isFlagged {
+					if cell.hasMine {
+						buttonText = "🚩" // Correct flag
+					} else {
+						buttonText = "❌" // Wrong flag
+					}
+				} else if cell.hasMine {
+					buttonText = "💣"
+
+					// Last action
+					lastAction := minefield.history[0]
+
+					if minefield.isGameover && (lastAction.x == x && lastAction.y == y) {
+						buttonText = "💥"
+					}
+
+				} else if cell.adjacentMines > 0 {
+					buttonText = strconv.Itoa(cell.adjacentMines)
+				} else {
+					buttonText = "."
+				}
+			} else if cell.isFlagged {
+				buttonText = "🚩"
+			}
+
+			// Create a new button widget
+			button := widget.NewButton(buttonText, func() {
+
+				if minefield.isGameover {
+					return
+				}
+
+				if cell.isRevealed {
+					return
+				}
+
+				// handle left click
+				if cell.isFlagged {
+					return
+				}
+
+				minefield.reveal(x, y, true)
+
+				minefield.drawMineField(window)
+			})
+			if x == mostVotedCol && y == mostVotedRow {
+				// TODO highlight the most voted cell
+			}
+			button.Disable()
+
+			// Add the button to the grid layout
+			gameGrid.Add(button)
+		}
+	}
+
+	//Information Panel
+	infoGrid := container.NewGridWithColumns(2)
+
+	// Mines left
+	minesLeftLabel := widget.NewLabel("Total Mines:")
+	minesLeftValue := widget.NewLabel(fmt.Sprintf("%d", minefield.minesLeft))
+	infoGrid.Add(minesLeftLabel)
+	infoGrid.Add(minesLeftValue)
+
+	// History
+	historyLabel := widget.NewLabel("History:")
+	infoGrid.Add(historyLabel)
+
+	historyValues := []string{}
+	i := 0
+	for i < 5 && i < len(minefield.history) {
+		action := minefield.history[i]
+
+		//Convert action.x to column letter
+		colLetter := string('A' + action.x)
+
+		historyValues = append(historyValues, fmt.Sprintf("%s%d ", colLetter, action.y))
+
+		i++
+	}
+
+	historyValueText := strings.Join(historyValues, "\n")
+	historyValue := widget.NewLabel(historyValueText)
+	infoGrid.Add(historyValue)
+
+	// infoGrid is right, gameGrid is center
+	window.SetContent(container.NewBorder(nil, nil, nil, infoGrid, gameGrid))
 }

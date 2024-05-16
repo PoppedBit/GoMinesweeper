@@ -79,13 +79,9 @@ func (minefield *TwitchSweepsMines) printActionsQueue() {
 	}
 }
 
-func (minefield *TwitchSweepsMines) executeAction() bool {
-
-	minefield.printActionsQueue()
-
-	// Find the most voted action
+func (minefield *TwitchSweepsMines) getMostVotedAction() string {
 	maxVotes := 0
-	var action string
+	action := ""
 	for a, v := range minefield.actionVotes {
 		if v > maxVotes {
 			maxVotes = v
@@ -93,7 +89,17 @@ func (minefield *TwitchSweepsMines) executeAction() bool {
 		}
 	}
 
-	if maxVotes == 0 {
+	return action
+}
+
+func (minefield *TwitchSweepsMines) executeAction() bool {
+
+	minefield.printActionsQueue()
+
+	// Find the most voted action
+	action := minefield.getMostVotedAction()
+
+	if len(action) == 0 {
 		fmt.Println("No action to execute")
 		return false
 	}
