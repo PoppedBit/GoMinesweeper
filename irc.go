@@ -99,7 +99,7 @@ func runIRCGame() {
 
 		// Initialize minefield
 		minefield := TwitchSweepsMines{}
-		minefield.init(width, height, numMines)
+		minefield.init(conn, channel, width, height, numMines)
 
 		// Start the IRC game
 		playIRCGame(conn, minefield, gameWindow)
@@ -167,6 +167,12 @@ func playIRCGame(conn net.Conn, minefield TwitchSweepsMines, window fyne.Window)
 		ticker := time.NewTicker(time.Second * time.Duration(minefield.countdown))
 		defer ticker.Stop()
 
+		startMessage := "Chat Connection Established and Game Initialized."
+
+		startOfLoopMessage := "You have " + strconv.Itoa(minefield.countdown) + " seconds to vote for the next action!"
+
+		minefield.sendTwitchMessage(startMessage + "  " + startOfLoopMessage)
+
 		for {
 			select {
 			case <-ticker.C:
@@ -184,18 +190,29 @@ func playIRCGame(conn net.Conn, minefield TwitchSweepsMines, window fyne.Window)
 
 					// Check if the game is over
 					if minefield.isGameover {
+
+						endMessage := ""
+
 						if minefield.isWin {
 							fmt.Println("Congratulations! You have won the game!")
+							endMessage = "Congratulations chat, you won!"
 						} else {
 							fmt.Println("Game over! You have hit a mine!")
+							endMessage = "Oh no! You hit a mine! Game over!"
 
 							// print the minefield
 							minefield.print(true)
-
-							// Exit the game
-							return
 						}
+
+						restartMessage := "The game will restart in 10 seconds."
+
+						minefield.sendTwitchMessage(restartMessage + " " + endMessage)
+						return
+					} else {
+						minefield.sendTwitchMessage("Action executed(). " + startOfLoopMessage)
 					}
+				} else {
+					minefield.sendTwitchMessage("No action was executed. " + startOfLoopMessage)
 				}
 			}
 		}
@@ -333,10 +350,10 @@ func refreshGameWindow(window fyne.Window, minefield TwitchSweepsMines) {
 
 				minefield.drawMineField(window)
 			})
+
 			if x == mostVotedCol && y == mostVotedRow {
 				// TODO highlight the most voted cell
 			}
-			button.Disable()
 
 			// Add the button to the grid layout
 			gameGrid.Add(button)

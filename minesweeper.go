@@ -6,9 +6,9 @@ import (
 
 // size of minefield, width and height
 const (
-	defaultWidth  = 10
-	defaultHeight = 10
-	defaultMines  = 10
+	defaultWidth  = 5
+	defaultHeight = 5
+	defaultMines  = 5
 )
 
 // Grid Square

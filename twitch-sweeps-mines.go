@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"strconv"
 	"strings"
 )
@@ -12,15 +13,19 @@ const (
 
 type TwitchSweepsMines struct {
 	Minefield
+	connection  net.Conn
+	channel     string
 	users       []string
 	actionVotes map[string]int
 	paused      bool
 	countdown   int
 }
 
-func (m *TwitchSweepsMines) init(width, height, numMines int) {
+func (m *TwitchSweepsMines) init(connection net.Conn, channel string, width, height, numMines int) {
 	m.Minefield.init(width, height, numMines)
 
+	m.connection = connection
+	m.channel = channel
 	m.users = []string{}
 	m.actionVotes = make(map[string]int)
 	m.paused = false
@@ -142,4 +147,10 @@ func parseTwitchMessage(message string) (string, string) {
 	content := strings.Join(parts[3:], " ")[1:]
 
 	return username, content
+}
+
+// Post Message Back To Twitch Chat
+func (minefield *TwitchSweepsMines) sendTwitchMessage(message string) {
+	fmt.Printf("PRIVMSG %s :%s\r\n", minefield.channel, message)
+	fmt.Fprintf(minefield.connection, "PRIVMSG #%s :%s\r\n", minefield.channel, message)
 }
