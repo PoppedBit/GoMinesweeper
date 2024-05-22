@@ -185,7 +185,7 @@ func playIRCGame(conn net.Conn, minefield TwitchSweepsMines, window fyne.Window)
 				minefield.print(false)
 
 				// Refresh the game window
-				if actionExecuted {
+				if len(actionExecuted) > 0 {
 					refreshGameWindow(window, minefield)
 
 					// Check if the game is over
@@ -206,10 +206,10 @@ func playIRCGame(conn net.Conn, minefield TwitchSweepsMines, window fyne.Window)
 
 						restartMessage := "The game will restart in 10 seconds."
 
-						minefield.sendTwitchMessage(restartMessage + " " + endMessage)
+						minefield.sendTwitchMessage(endMessage + " " + restartMessage)
 						return
 					} else {
-						minefield.sendTwitchMessage("Action executed(). " + startOfLoopMessage)
+						minefield.sendTwitchMessage("Action executed(" + actionExecuted + "). " + startOfLoopMessage)
 					}
 				} else {
 					minefield.sendTwitchMessage("No action was executed. " + startOfLoopMessage)
