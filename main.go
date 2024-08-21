@@ -26,7 +26,7 @@ func main() {
 		print("Choose game mode: ")
 		_, _ = fmt.Scanf("%d", &mode)
 
-		if mode != 1 && mode != 2 {
+		if mode != 1 && mode != 2 && mode != 3 {
 			println("Invalid action, try again")
 		}
 	}
